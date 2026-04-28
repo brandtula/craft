@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
+import { createQuote } from "@/lib/services/ops-service";
 
 const bagTypes = [
   "Retail Paper Bags",
@@ -34,29 +35,53 @@ export default function QuotePage() {
     additionalNotes: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend/API
-    console.log("Quote request submitted:", formData);
-    setSubmitted(true);
-    // Reset form after 5 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        company: "",
-        bagType: "",
-        dimensions: { length: "", width: "", height: "" },
-        quantity: "",
-        printingRequired: false,
-        printingDetails: "",
-        deliveryLocation: "",
-        additionalNotes: "",
+    setIsSubmitting(true);
+    
+    try {
+      await createQuote({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company || undefined,
+        bagType: formData.bagType,
+        length: parseFloat(formData.dimensions.length),
+        width: parseFloat(formData.dimensions.width),
+        height: parseFloat(formData.dimensions.height),
+        quantity: parseInt(formData.quantity, 10),
+        printingRequired: formData.printingRequired,
+        printingDetails: formData.printingDetails || undefined,
+        deliveryLocation: formData.deliveryLocation,
+        additionalNotes: formData.additionalNotes || undefined,
       });
-    }, 5000);
+
+      setSubmitted(true);
+      // Reset form after 5 seconds
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          company: "",
+          bagType: "",
+          dimensions: { length: "", width: "", height: "" },
+          quantity: "",
+          printingRequired: false,
+          printingDetails: "",
+          deliveryLocation: "",
+          additionalNotes: "",
+        });
+      }, 5000);
+    } catch (error) {
+      console.error("Error submitting quote:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -96,7 +121,7 @@ export default function QuotePage() {
                 Request a Quote
               </h1>
               <p className="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-                Fill out the form below and we'll provide you with a detailed quote for your paper bag needs. 
+                Fill out the form below and we'll provide you with a detailed quote for your paper bag needs.
                 Our team typically responds within 24 hours.
               </p>
             </div>
@@ -388,9 +413,10 @@ export default function QuotePage() {
                 </Link>
                 <button
                   type="submit"
-                  className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                  disabled={isSubmitting}
+                  className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50"
                 >
-                  {submitted ? "Quote Requested!" : "Submit Quote Request"}
+                  {isSubmitting ? "Submitting..." : submitted ? "Quote Requested!" : "Submit Quote Request"}
                 </button>
               </div>
             </form>

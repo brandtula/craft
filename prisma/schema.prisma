@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum QuoteStatus {
+  PENDING_REVIEW    @map("Pending Review")
+  PENDING           @map("Pending")
+  AWAITING_APPROVAL @map("Awaiting Approval")
+  APPROVED          @map("Approved")
+}
+
+enum OrderStatus {
+  PRODUCTION @map("Production")
+  SHIPPING   @map("Shipping")
+  DELIVERED  @map("Delivered")
+}
+
+enum FulfillmentStatus {
+  PENDING    @map("Pending")
+  IN_TRANSIT @map("In Transit")
+  COMPLETED  @map("Completed")
+}
+
+enum TaskStatus {
+  TO_DO       @map("To Do")
+  IN_PROGRESS @map("In Progress")
+  REVIEW      @map("Review")
+  DONE        @map("Done")
+}
+
+enum Priority {
+  URGENT @map("Urgent")
+  HIGH   @map("High")
+  MEDIUM @map("Medium")
+  LOW    @map("Low")
+}
+
+enum CraftType {
+  QUOTE
+  ORDER
+}
+
+model Craft {
+  id                String      @id @default(cuid())
+  type              CraftType   @default(QUOTE)
+  
+  // Shared fields
+  customer          String
+  items             String
+  bagType           String
+  length            Float
+  width             Float
+  height            Float
+  quantity          Int
+  printingRequired  Boolean     @default(false)
+  printingDetails   String?
+  deliveryLocation  String
+  additionalNotes   String?
+  amount            Float       @default(0)
+  
+  // Quote specific fields (initial contact)
+  name              String?
+  email             String?
+  phone             String?
+  company           String?
+  
+  // Statuses
+  quoteStatus       QuoteStatus? @default(PENDING_REVIEW)
+  orderStatus       OrderStatus?
+  fulfillmentStatus FulfillmentStatus?
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // For backwards compatibility/convenience in queries
+  date              DateTime    @default(now())
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  title     String
+  status    TaskStatus @default(TO_DO)
+  assignee  String
+  priority  Priority   @default(MEDIUM)
+  comments  Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
