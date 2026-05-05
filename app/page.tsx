@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
+import EagleAnimation from "./components/EagleAnimation";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-black">
+      <EagleAnimation />
       <Navigation />
       <main>
         {/* Hero Section */}

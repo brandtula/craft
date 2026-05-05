@@ -5,8 +5,12 @@ export default function Navigation() {
     <nav className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-zinc-800 dark:bg-black/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-            Craft Bags
+          <Link href="/" className="relative flex flex-col items-start justify-center">
+            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Craft Bag USA
+            </span>
+            {/* The landing spot for the eagle animation */}
+            <div id="eagle-landing-spot" className="absolute -bottom-10 left-4 h-10 w-10"></div>
           </Link>
           <div className="hidden space-x-8 md:flex">
             <Link
